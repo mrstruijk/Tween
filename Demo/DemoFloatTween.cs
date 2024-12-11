@@ -7,7 +7,7 @@ public class DemoFloatTween : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_textField;
 
     public float FloatToTween;
-    
+
     private float _floatValue;
 
 
