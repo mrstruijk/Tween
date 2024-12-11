@@ -14,7 +14,7 @@ public interface ITween
 
     bool IsPaused { get; }
 
-    bool IgnoreTimeScale { get; }
+    bool DoIgnoreTimeScale { get; }
 
     string Identifier { get; }
 

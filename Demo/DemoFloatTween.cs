@@ -26,7 +26,7 @@ public class DemoFloatTween : MonoBehaviour
     [ContextMenu(nameof(TestFloatDown))]
     private void TestFloatDown()
     {
-        TweenManager.TweenFloat(GetLerpValue, SetLerpValue, 0, 5).SetOnUpdate(SetFloatValue);
+        TweenManager.TweenFloat(GetLerpValue, SetLerpValue, 0, 5).OnUpdate(SetFloatValue);
     }
 
 
@@ -44,6 +44,6 @@ public class DemoFloatTween : MonoBehaviour
     [ContextMenu(nameof(TestFloatUp))]
     private void TestFloatUp()
     {
-        TweenManager.TweenFloat(GetLerpValue, SetLerpValue, 10, 5).SetOnUpdate(SetFloatValue);
+        TweenManager.TweenFloat(GetLerpValue, SetLerpValue, 10, 5).OnUpdate(SetFloatValue);
     }
 }

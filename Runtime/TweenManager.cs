@@ -9,9 +9,8 @@ using UnityEngine;
 /// </summary>
 public class TweenManager : MonoBehaviour
 {
-    private static TweenManager _instance;
-
     private readonly Dictionary<string, ITween> _activeTweens = new();
+    private static TweenManager _instance;
 
     public static TweenManager Instance
     {
@@ -21,6 +20,7 @@ public class TweenManager : MonoBehaviour
             {
                 var manager = new GameObject("TweenManager");
                 _instance = manager.AddComponent<TweenManager>();
+                DontDestroyOnLoad(manager);
             }
 
             return _instance;
@@ -30,11 +30,11 @@ public class TweenManager : MonoBehaviour
 
     public void AddTween<T>(ITween tween)
     {
-        if (_activeTweens.ContainsKey(tween.Identifier))
+        if (_activeTweens.TryGetValue(tween.Identifier, out var activeTween))
         {
             Debug.LogFormat(tween.Target as GameObject, "We are redoing an identical tween again before the previous one is completed. Is that intentional?");
 
-            _activeTweens[tween.Identifier].OnCompleteKill();
+            activeTween.OnCompleteKill();
         }
 
         _activeTweens[tween.Identifier] = tween;
@@ -45,25 +45,24 @@ public class TweenManager : MonoBehaviour
     {
         var dictAsList = _activeTweens.ToList(); // We're taking a snapshot of the dictionary while we're iterating through it. This way we don't really delete some item from the dictionary while iterating, thus preventing some errors.
 
-        foreach (var activeTween in dictAsList)
+        foreach (var (key, tween) in dictAsList)
         {
-            var tween = activeTween.Value;
             tween.Update();
 
             if (tween.IsComplete && !tween.WasKilled) // The tween.onComplete is called from here because this shouldn't be called while removing items from the dictionary. If this were still called on the Update of the Tween itself, there was a risk of that happening.
             {
                 if (tween.onComplete != null)
                 {
-                    tween.onComplete.Invoke(); // 
+                    tween.onComplete.Invoke();
                     tween.onComplete = null;
                 }
 
-                RemoveTween(activeTween.Key);
+                RemoveTween(key);
             }
 
             if (tween.WasKilled)
             {
-                RemoveTween(activeTween.Key);
+                RemoveTween(key);
             }
         }
     }

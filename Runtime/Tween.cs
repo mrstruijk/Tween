@@ -21,6 +21,8 @@ public class Tween<T> : ITween
     private int _loopCount = 1;
     private float _percentThreshold = -1f;
 
+    private Vector2 _snapThreshold = new(0.001f, 0.999f); // Set to 0,0 if you don't want to use snapping. 
+
     private Action _onUpdate;
     private Action _onPercentCompleted;
 
@@ -51,7 +53,7 @@ public class Tween<T> : ITween
             return;
         }
 
-        if (IgnoreTimeScale)
+        if (DoIgnoreTimeScale)
         {
             _delayElapsedTime += Time.unscaledDeltaTime;
         }
@@ -77,7 +79,7 @@ public class Tween<T> : ITween
             return;
         }
 
-        if (IgnoreTimeScale)
+        if (DoIgnoreTimeScale)
         {
             _elapsedTime += Time.unscaledDeltaTime;
         }
@@ -88,6 +90,7 @@ public class Tween<T> : ITween
 
         var percentage = _elapsedTime / _duration;
         var easedPercentage = Ease(_easingType, percentage);
+
         T currentValue;
 
         if (_reverse)
@@ -164,7 +167,7 @@ public class Tween<T> : ITween
             return true;
         }
 
-        if (Target is Delegate del && del.Target == null)
+        if (Target is Delegate {Target: null})
         {
             return true;
         }
@@ -189,7 +192,7 @@ public class Tween<T> : ITween
     public bool IsComplete { get; private set; }
     public bool WasKilled { get; private set; }
     public bool IsPaused { get; private set; }
-    public bool IgnoreTimeScale { get; private set; }
+    public bool DoIgnoreTimeScale { get; private set; }
     public string Identifier { get; }
     public float DelayTime { get; private set; }
     public Action onComplete { get; set; }
@@ -198,10 +201,8 @@ public class Tween<T> : ITween
     /// <summary>
     ///     Some cents from my testing if anyone's interested. The Interpolate() function as in the video allocates GC, due to
     ///     boxing of value types 'is' and 'object' conversions. In my case 180 objects allocated 30kb of GC per frame, so I've
-    ///     found that making the function abstract and overloading it in ie FloatTween : Tween
-    ///     <float>
-    ///         avoided the GC allocation and it ended up being faster since there was no need for conversions and if
-    ///         statements.
+    ///     found that making the function abstract and overloading it in ie FloatTween avoided the GC allocation and it ended
+    ///     up being faster since there was no need for conversions and if statements.
     /// </summary>
     /// <param name="start"></param>
     /// <param name="end"></param>
@@ -210,6 +211,16 @@ public class Tween<T> : ITween
     /// <exception cref="NotImplementedException"></exception>
     public T Interpolate(T start, T end, float percentage)
     {
+        if (_snapThreshold.x != 0f && percentage <= _snapThreshold.x)
+        {
+            return _startValue;
+        }
+
+        if (_snapThreshold.y != 0 && percentage >= _snapThreshold.y)
+        {
+            return _endValue;
+        }
+
         if (start is float startFloat && end is float endFloat)
         {
             var value = Mathf.LerpUnclamped(startFloat, endFloat, percentage); // Important to use LerpUnclamped for floats in a Tween Library, because some Easing functions purposely overshoot the end values. They don't work when using regular Lerp.
@@ -245,7 +256,7 @@ public class Tween<T> : ITween
     }
 
 
-    public Tween<T> SetEase(EasingType easingType)
+    public Tween<T> WithEase(EasingType easingType)
     {
         _easingType = easingType;
 
@@ -258,7 +269,7 @@ public class Tween<T> : ITween
     /// </summary>
     /// <param name="loopCount"></param>
     /// <returns></returns>
-    public Tween<T> SetPingPong(int loopCount = 1)
+    public Tween<T> PingPong(int loopCount = 1)
     {
         _loopCount = loopCount;
         _pingPong = true;
@@ -267,7 +278,7 @@ public class Tween<T> : ITween
     }
 
 
-    public Tween<T> SetOnComplete(Action doOnComplete)
+    public Tween<T> OnComplete(Action doOnComplete)
     {
         onComplete = doOnComplete;
 
@@ -275,15 +286,15 @@ public class Tween<T> : ITween
     }
 
 
-    public Tween<T> SetIgnoreTimeScale()
+    public Tween<T> IgnoreTimeScale()
     {
-        IgnoreTimeScale = true;
+        DoIgnoreTimeScale = true;
 
         return this;
     }
 
 
-    public Tween<T> SetOnUpdate(Action onUpdate)
+    public Tween<T> OnUpdate(Action onUpdate)
     {
         _onUpdate = onUpdate;
 
@@ -300,9 +311,30 @@ public class Tween<T> : ITween
     }
 
 
-    public Tween<T> SetStartDelay(float delayTime)
+    public Tween<T> StartDelay(float delayTime)
     {
         DelayTime = delayTime;
+
+        return this;
+    }
+
+
+    public Tween<T> DoNotSnapEdges()
+    {
+        _snapThreshold = new Vector2(0, 0);
+
+        return this;
+    }
+
+
+    public Tween<T> SnapToEdges(Vector2 threshold = default)
+    {
+        if (threshold == default)
+        {
+            threshold = new Vector2(0.001f, 0.999f); // Default values if none provided
+        }
+
+        _snapThreshold = threshold;
 
         return this;
     }

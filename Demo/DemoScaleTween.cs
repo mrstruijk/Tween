@@ -9,13 +9,13 @@ public class DemoScaleTween : MonoBehaviour
     [ContextMenu(nameof(TestScaleDown))]
     private void TestScaleDown()
     {
-        TweenManager.TweenScale(gameObject, gameObject.transform.localScale, gameObject.transform.localScale / m_scaler, 4).SetEase(EasingType.EaseInBounce);
+        TweenManager.TweenScale(gameObject, gameObject.transform.localScale, gameObject.transform.localScale / m_scaler, 4).WithEase(EasingType.EaseInBounce);
     }
 
 
     [ContextMenu(nameof(TestScaleUp))]
     private void TestScaleUp()
     {
-        TweenManager.TweenScale(gameObject, gameObject.transform.localScale, gameObject.transform.localScale * m_scaler, 4).SetEase(EasingType.EaseInCubic);
+        TweenManager.TweenScale(gameObject, gameObject.transform.localScale, gameObject.transform.localScale * m_scaler, 4).WithEase(EasingType.EaseInCubic);
     }
 }
