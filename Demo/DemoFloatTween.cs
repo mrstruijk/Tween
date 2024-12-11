@@ -2,38 +2,30 @@ using TMPro;
 using UnityEngine;
 
 
+/// <summary>
+/// With help from Claude
+/// </summary>
 public class DemoFloatTween : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI m_textField;
-
+    
     public float FloatToTween;
-
-    private float _floatValue;
-
-
-    private float GetLerpValue()
-    {
-        return _floatValue;
-    }
-
-
-    private void SetLerpValue(float newValue)
-    {
-        _floatValue = newValue;
-    }
 
 
     [ContextMenu(nameof(TestFloatDown))]
     private void TestFloatDown()
     {
-        TweenManager.TweenFloat(GetLerpValue, SetLerpValue, 0, 5).OnUpdate(SetFloatValue);
+        TweenManager.TweenFloat(
+            () => FloatToTween,
+            value => { FloatToTween = value; },
+            0,
+            5
+        ).OnUpdate(SetText);
     }
 
 
-    private void SetFloatValue()
+    private void SetText()
     {
-        FloatToTween = GetLerpValue();
-
         if (m_textField != null)
         {
             m_textField.text = FloatToTween.ToString();
@@ -44,6 +36,11 @@ public class DemoFloatTween : MonoBehaviour
     [ContextMenu(nameof(TestFloatUp))]
     private void TestFloatUp()
     {
-        TweenManager.TweenFloat(GetLerpValue, SetLerpValue, 10, 5).OnUpdate(SetFloatValue);
+        TweenManager.TweenFloat(
+            () => FloatToTween,
+            value => { FloatToTween = value; },
+            10,
+            5
+        ).OnUpdate(SetText);
     }
 }

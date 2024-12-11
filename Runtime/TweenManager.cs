@@ -97,16 +97,7 @@ public class TweenManager : MonoBehaviour
         return tween;
     }
 
-
-    public static Tween<Vector3> TweenScale(GameObject go, Vector3 startScale, Vector3 endScale, float duration)
-    {
-        var id = $"{go.transform.GetInstanceID()}_Scale";
-        var trans = go.transform;
-
-        var tween = new Tween<Vector3>(go, id, startScale, endScale, duration, value => { trans.localScale = value; });
-
-        return tween;
-    }
+    
 
 
     public static Tween<float> TweenFloat(Func<float> getValueToTween, Action<float> setValueToTween, float endValue, float duration)
