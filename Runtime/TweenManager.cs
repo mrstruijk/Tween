@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -43,9 +42,9 @@ public class TweenManager : MonoBehaviour
 
     private void Update()
     {
-        var dictAsList = _activeTweens.ToList(); // We're taking a snapshot of the dictionary while we're iterating through it. This way we don't really delete some item from the dictionary while iterating, thus preventing some errors.
+        var dictionaryAsList = _activeTweens.ToList(); // We're taking a snapshot of the dictionary while we're iterating through it. This way we don't really delete some item from the dictionary while iterating, thus preventing some errors.
 
-        foreach (var (key, tween) in dictAsList)
+        foreach (var (key, tween) in dictionaryAsList)
         {
             tween.Update();
 
@@ -71,44 +70,5 @@ public class TweenManager : MonoBehaviour
     public void RemoveTween(string identifier)
     {
         _activeTweens.Remove(identifier);
-    }
-
-
-    public static Tween<float> TweenSpriteAlpha(GameObject go, float startAlpha, float endAlpha, float duration)
-    {
-        var spriteRenderer = go.GetComponent<SpriteRenderer>();
-
-        if (spriteRenderer == null)
-        {
-            Debug.LogErrorFormat($"Component {typeof(SpriteRenderer)} not found!");
-
-            return null;
-        }
-
-        var id = $"{spriteRenderer.GetInstanceID()}_Alpha";
-
-        var tween = new Tween<float>(go, id, startAlpha, endAlpha, duration, value =>
-        {
-            var color = spriteRenderer.color; // Colors are structs, therefore you cannot modify them directly
-            color.a = value;
-            spriteRenderer.color = color;
-        });
-
-        return tween;
-    }
-
-    
-
-
-    public static Tween<float> TweenFloat(Func<float> getValueToTween, Action<float> setValueToTween, float endValue, float duration)
-    {
-        var identifier = $" {getValueToTween.Target.GetHashCode()}_Float";
-
-        var target = getValueToTween.Target;
-        var startValue = getValueToTween();
-
-        var tween = new Tween<float>(target, identifier, startValue, endValue, duration, value => { setValueToTween(value); });
-
-        return tween;
     }
 }

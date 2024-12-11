@@ -3,16 +3,19 @@ using UnityEngine;
 
 public class DemoSpriteTween : MonoBehaviour
 {
+    [SerializeField] private SpriteRenderer m_spriteRenderer;
+
+
     [ContextMenu(nameof(TestAlphaFadeOut))]
     private void TestAlphaFadeOut()
     {
-        TweenManager.TweenSpriteAlpha(gameObject, 1, 0, 4);
+        m_spriteRenderer.Tween(0, 4);
     }
 
 
     [ContextMenu(nameof(TestAlphaFadeIn))]
     private void TestAlphaFadeIn()
     {
-        TweenManager.TweenSpriteAlpha(gameObject, 0, 1, 4);
+        m_spriteRenderer.Tween(1, 4);
     }
 }

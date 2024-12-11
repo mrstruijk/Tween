@@ -327,7 +327,7 @@ public class Tween<T> : ITween
     }
 
 
-    public Tween<T> SnapToEdges(Vector2 threshold = default)
+    public Tween<T> SnapToEdges(Vector2 threshold = default) // This is already the default behaviour, but can be useful for when it had been turned off
     {
         if (threshold == default)
         {
