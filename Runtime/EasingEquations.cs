@@ -1,7 +1,8 @@
 using UnityEngine;
 
+
 /// <summary>
-/// From ChatGPT
+///     From ChatGPT
 /// </summary>
 public static class EasingEquations
 {

@@ -1,5 +1,5 @@
 /// <summary>
-/// From ChatGPT
+///     From ChatGPT
 /// </summary>
 public enum EasingType
 {

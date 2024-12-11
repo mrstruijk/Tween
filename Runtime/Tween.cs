@@ -7,9 +7,9 @@ using UnityEngine;
 /// </summary>
 public class Tween<T> : ITween
 {
-    private T _startValue;
-    private T _endValue;
-    private float _duration; // In seconds
+    private readonly T _startValue;
+    private readonly T _endValue;
+    private readonly float _duration; // In seconds
     private Action<T> _onTweenUpdate; // Called every frame, to lerp the value of type T  
     private float _elapsedTime = 0f; // In seconds
     private EasingType _easingType = EasingType.Linear;
@@ -23,7 +23,8 @@ public class Tween<T> : ITween
 
     private Action _onUpdate;
     private Action _onPercentCompleted;
-    
+
+
     /// <summary>
     ///     Constructor
     /// </summary>
@@ -35,7 +36,7 @@ public class Tween<T> : ITween
         _endValue = endValue;
         _duration = duration;
         _onTweenUpdate = onTweenUpdate;
-        
+
         TweenManager.Instance.AddTween<T>(this);
     }
 
@@ -49,7 +50,7 @@ public class Tween<T> : ITween
         {
             return;
         }
-        
+
         if (IgnoreTimeScale)
         {
             _delayElapsedTime += Time.unscaledDeltaTime;
@@ -63,15 +64,16 @@ public class Tween<T> : ITween
         {
             return;
         }
-        
+
         if (IsComplete)
         {
-            return; 
+            return;
         }
 
         if (TargetWasDestroyed())
         {
             FullKill();
+
             return;
         }
 
@@ -84,8 +86,8 @@ public class Tween<T> : ITween
             _elapsedTime += Time.deltaTime;
         }
 
-        float percentage = _elapsedTime / _duration;
-        float easedPercentage = Ease(_easingType, percentage);
+        var percentage = _elapsedTime / _duration;
+        var easedPercentage = Ease(_easingType, percentage);
         T currentValue;
 
         if (_reverse)
@@ -96,7 +98,7 @@ public class Tween<T> : ITween
         {
             currentValue = Interpolate(_startValue, _endValue, easedPercentage);
         }
-        
+
         _onUpdate?.Invoke();
         _onTweenUpdate?.Invoke(currentValue);
 
@@ -125,39 +127,9 @@ public class Tween<T> : ITween
         }
     }
 
-    /// <summary>
-    /// Some cents from my testing if anyone's interested. The Interpolate() function as in the video allocates GC, due to boxing of value types 'is' and 'object' conversions. In my case 180 objects allocated 30kb of GC per frame, so I've found that making the function abstract and overloading it in ie FloatTween : Tween<float> avoided the GC allocation and it ended up being faster since there was no need for conversions and if statements.
-    /// </summary>
-    /// <param name="start"></param>
-    /// <param name="end"></param>
-    /// <param name="percentage"></param>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public T Interpolate(T start, T end, float percentage)
-    {
-        if (start is float startFloat && end is float endFloat)
-        {
-            var value = Mathf.LerpUnclamped(startFloat, endFloat, percentage); // Important to use LerpUnclamped for floats in a Tween Library, because some Easing functions purposely overshoot the end values. They don't work when using regular Lerp.
-            var generic = (T) (object) value; // Because we're trying to create a generic system, this method returns a generic type. Casting it through T and object should do so.
-
-            return generic;
-        }
-
-        if (start is Vector3 startVector && end is Vector3 endVector)
-        {
-            return (T)(object) Vector3.LerpUnclamped(startVector, endVector, percentage); // Direct cast for brevity
-        }
-
-        if (start is Color startColor && end is Color endColor)
-        {
-            return (T)(object) Color.Lerp(startColor, endColor, percentage); // Not using Unclamped for color, since they get a little weird when overshot.
-        }
-
-        throw new NotImplementedException($"Interpolation for type {typeof(T)} is not yet implemented");
-    }
 
     /// <summary>
-    /// Specifically for when the tween completes and is finished
+    ///     Specifically for when the tween completes and is finished
     /// </summary>
     public void OnCompleteKill()
     {
@@ -168,16 +140,15 @@ public class Tween<T> : ITween
         _onPercentCompleted = null;
     }
 
-    
+
     /// <summary>
-    /// Will get killed if the object referencing the tween gets destroyed
+    ///     Will get killed if the object referencing the tween gets destroyed
     /// </summary>
     public void FullKill()
     {
         OnCompleteKill();
         WasKilled = true;
         onComplete = null;
-        
     }
 
 
@@ -214,6 +185,53 @@ public class Tween<T> : ITween
     }
 
 
+    public object Target { get; }
+    public bool IsComplete { get; private set; }
+    public bool WasKilled { get; private set; }
+    public bool IsPaused { get; private set; }
+    public bool IgnoreTimeScale { get; private set; }
+    public string Identifier { get; }
+    public float DelayTime { get; private set; }
+    public Action onComplete { get; set; }
+
+
+    /// <summary>
+    ///     Some cents from my testing if anyone's interested. The Interpolate() function as in the video allocates GC, due to
+    ///     boxing of value types 'is' and 'object' conversions. In my case 180 objects allocated 30kb of GC per frame, so I've
+    ///     found that making the function abstract and overloading it in ie FloatTween : Tween
+    ///     <float>
+    ///         avoided the GC allocation and it ended up being faster since there was no need for conversions and if
+    ///         statements.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="percentage"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public T Interpolate(T start, T end, float percentage)
+    {
+        if (start is float startFloat && end is float endFloat)
+        {
+            var value = Mathf.LerpUnclamped(startFloat, endFloat, percentage); // Important to use LerpUnclamped for floats in a Tween Library, because some Easing functions purposely overshoot the end values. They don't work when using regular Lerp.
+            var generic = (T) (object) value; // Because we're trying to create a generic system, this method returns a generic type. Casting it through T and object should do so.
+
+            return generic;
+        }
+
+        if (start is Vector3 startVector && end is Vector3 endVector)
+        {
+            return (T) (object) Vector3.LerpUnclamped(startVector, endVector, percentage); // Direct cast for brevity
+        }
+
+        if (start is Color startColor && end is Color endColor)
+        {
+            return (T) (object) Color.Lerp(startColor, endColor, percentage); // Not using Unclamped for color, since they get a little weird when overshot.
+        }
+
+        throw new NotImplementedException($"Interpolation for type {typeof(T)} is not yet implemented");
+    }
+
+
     public void Toggle()
     {
         if (IsPaused)
@@ -226,15 +244,17 @@ public class Tween<T> : ITween
         }
     }
 
+
     public Tween<T> SetEase(EasingType easingType)
     {
         _easingType = easingType;
 
-        return this;  // This allows for Method Chaining
+        return this; // This allows for Method Chaining
     }
-    
+
+
     /// <summary>
-    /// -1 loops forever
+    ///     -1 loops forever
     /// </summary>
     /// <param name="loopCount"></param>
     /// <returns></returns>
@@ -249,7 +269,7 @@ public class Tween<T> : ITween
 
     public Tween<T> SetOnComplete(Action doOnComplete)
     {
-        this.onComplete = doOnComplete;
+        onComplete = doOnComplete;
 
         return this;
     }
@@ -265,16 +285,16 @@ public class Tween<T> : ITween
 
     public Tween<T> SetOnUpdate(Action onUpdate)
     {
-        this._onUpdate = onUpdate;
+        _onUpdate = onUpdate;
 
         return this;
     }
 
 
-    public Tween<T> SetOnPercentCompleted(float percentCompleted,Action onPercentCompleted) // Better called 'thresholdPercentage'
+    public Tween<T> SetOnPercentCompleted(float percentCompleted, Action onPercentCompleted) // Better called 'thresholdPercentage'
     {
         _percentThreshold = Mathf.Clamp01(percentCompleted); // This is weird, and I think should be scaled and not clamped
-        this._onPercentCompleted = onPercentCompleted;
+        _onPercentCompleted = onPercentCompleted;
 
         return this;
     }
@@ -286,15 +306,6 @@ public class Tween<T> : ITween
 
         return this;
     }
-    
-    public object Target { get; }
-    public bool IsComplete { get; private set; }
-    public bool WasKilled { get; private set; }
-    public bool IsPaused { get; private set; }
-    public bool IgnoreTimeScale { get; private set; }
-    public string Identifier { get; }
-    public float DelayTime { get; private set; }
-    public Action onComplete { get; set; }
 
 
     public static float Ease(EasingType equation, float t)
@@ -309,11 +320,11 @@ public class Tween<T> : ITween
                 return EasingEquations.EaseOutQuad(t);
             case EasingType.EaseInOutQuad:
                 return EasingEquations.EaseInOutQuad(t);
-            case EasingType.EaseInCubic: 
+            case EasingType.EaseInCubic:
                 return EasingEquations.EaseInCubic(t);
             case EasingType.EaseOutCubic:
                 return EasingEquations.EaseOutCubic(t);
-            case EasingType.EaseInOutCubic :
+            case EasingType.EaseInOutCubic:
                 return EasingEquations.EaseInOutCubic(t);
             case EasingType.EaseInQuart:
                 return EasingEquations.EaseInQuart(t);
@@ -322,7 +333,7 @@ public class Tween<T> : ITween
             case EasingType.EaseInOutQuart:
                 return EasingEquations.EaseInOutQuart(t);
             case EasingType.EaseInQuint:
-                return EasingEquations.EaseInQuint(t);  
+                return EasingEquations.EaseInQuint(t);
             case EasingType.EaseOutQuint:
                 return EasingEquations.EaseOutQuint(t);
             case EasingType.EaseInOutQuint:
@@ -365,7 +376,6 @@ public class Tween<T> : ITween
                 return EasingEquations.EaseInOutBounce(t);
             default:
                 throw new ArgumentOutOfRangeException(nameof(equation), equation, null);
-            
         }
     }
 }
