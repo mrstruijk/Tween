@@ -1,21 +1,24 @@
 using UnityEngine;
 
 
-public class DemoSpriteTween : MonoBehaviour
+namespace SOSXR.Tweening.Demo
 {
-    [SerializeField] private SpriteRenderer m_spriteRenderer;
-
-
-    [ContextMenu(nameof(TestAlphaFadeOut))]
-    private void TestAlphaFadeOut()
+    public class DemoSpriteTween : MonoBehaviour
     {
-        m_spriteRenderer.Tween(0, 4);
-    }
+        [SerializeField] private SpriteRenderer m_spriteRenderer;
 
 
-    [ContextMenu(nameof(TestAlphaFadeIn))]
-    private void TestAlphaFadeIn()
-    {
-        m_spriteRenderer.Tween(1, 4);
+        [ContextMenu(nameof(TestAlphaFadeOut))]
+        private void TestAlphaFadeOut()
+        {
+            m_spriteRenderer.TweenAlpha(0, 4);
+        }
+
+
+        [ContextMenu(nameof(TestAlphaFadeIn))]
+        private void TestAlphaFadeIn()
+        {
+            m_spriteRenderer.TweenAlpha(1, 4);
+        }
     }
 }

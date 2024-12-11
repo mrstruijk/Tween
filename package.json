@@ -1,13 +1,16 @@
 {
-  "name": "com.sosxr.",
+  "name": "com.sosxr.tweening",
   "version": "1.0.0",
-  "displayName": "",
-  "description": "",
-  "unity": "2021.3",
+  "displayName": "Tweening Library",
+  "description": "Tweening library for Unity. Based on Sasquatch's Tween library.",
+  "unity": "6.0.0",
   "dependencies": {
+    "com.unity.ugui": "2.0.0"
   },
   "keywords": [
-    "Unity"
+    "Unity",
+    "Tween",
+    "Animation"
   ],
   "author": {
     "name": "SOSXR",
