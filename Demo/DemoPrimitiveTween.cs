@@ -38,6 +38,7 @@ namespace SOSXR.Tweening.Demo
         }
 
 
+        
         [ContextMenu(nameof(TestVector2Up))]
         private void TestVector2Up()
         {
@@ -50,7 +51,6 @@ namespace SOSXR.Tweening.Demo
         {
             Vector3.Tween(value => { Vector3 = value; }, Vector3.zero, 5).OnUpdate(SetText);
         }
-
 
         [ContextMenu(nameof(TestVector3Up))]
         private void TestVector3Up()
