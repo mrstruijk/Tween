@@ -38,7 +38,8 @@ namespace SOSXR.Tweening
         EaseInOutBack,
         EaseInBounce,
         EaseOutBounce,
-        EaseInOutBounce
+        EaseInOutBounce, 
+        AnimationCurve  // Custom curve
     }
 
 

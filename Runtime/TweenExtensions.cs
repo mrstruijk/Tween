@@ -251,6 +251,14 @@ namespace SOSXR.Tweening
         {
             return TweenLocalRotation(trans, trans.localRotation, end, duration);
         }
+
+
+        public static Tween<Quaternion> TweenLocalRotation(this Transform trans, Vector3 end, float duration)
+        {
+            var endValue = Quaternion.Euler(end);
+
+            return TweenLocalRotation(trans, trans.localRotation, endValue, duration);
+        }
     }
 
 
@@ -316,6 +324,30 @@ namespace SOSXR.Tweening
             var startAlpha = material.HasProperty("_Color") ? material.color.a : 1.0f;
 
             return TweenAlpha(material, startAlpha, endAlpha, duration);
+        }
+        
+        public static Tween<float> TweenEmission(this Material material, Color startColor, Color endColor, float duration)
+        {
+            var id = $"{material.GetInstanceID()}_Emission";
+
+            var tween = new Tween<float>(material, id, startColor.r, endColor.r, duration, value =>
+            {
+                if (material.HasProperty("_EmissionColor"))
+                {
+                    var color = material.GetColor("_EmissionColor");
+                    color.r = value;
+                    material.SetColor("_EmissionColor", color);
+                }
+            });
+
+            return tween;
+        } 
+         
+        public static Tween<float> TweenEmission(this Material material, Color endColor, float duration)
+        {
+            var startColor = material.HasProperty("_EmissionColor") ? material.GetColor("_EmissionColor") : Color.black;
+
+            return TweenEmission(material, startColor, endColor, duration);
         }
     }
 }

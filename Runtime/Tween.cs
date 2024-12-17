@@ -27,6 +27,7 @@ namespace SOSXR.Tweening
 
         private Action _onUpdate;
         private Action _onPercentCompleted;
+        private AnimationCurve _easeCurve;
 
 
         /// <summary>
@@ -98,7 +99,17 @@ namespace SOSXR.Tweening
             }
 
             var percentage = _elapsedTime / _duration;
-            var easedPercentage = Ease(_easingType, percentage);
+
+            var easedPercentage = 0f;
+
+            if (_easingType == EasingType.AnimationCurve)
+            {
+                easedPercentage = Ease(_easeCurve, percentage);
+            }
+            else
+            {
+                easedPercentage = Ease(_easingType, percentage);
+            }
 
             T currentValue;
 
@@ -290,6 +301,15 @@ namespace SOSXR.Tweening
         }
 
 
+        public Tween<T> WithEase(AnimationCurve curve)
+        {
+            _easingType = EasingType.AnimationCurve;
+            _easeCurve = curve;
+
+            return this; // This allows for Method Chaining
+        }
+
+
         /// <summary>
         ///     -1 loops forever
         /// </summary>
@@ -363,6 +383,12 @@ namespace SOSXR.Tweening
             _snapThreshold = threshold;
 
             return this;
+        }
+
+
+        public static float Ease(AnimationCurve curve, float t)
+        {
+            return curve.Evaluate(t);
         }
 
 
