@@ -325,7 +325,8 @@ namespace SOSXR.Tweening
 
             return TweenAlpha(material, startAlpha, endAlpha, duration);
         }
-        
+
+
         public static Tween<float> TweenEmission(this Material material, Color startColor, Color endColor, float duration)
         {
             var id = $"{material.GetInstanceID()}_Emission";
@@ -341,8 +342,9 @@ namespace SOSXR.Tweening
             });
 
             return tween;
-        } 
-         
+        }
+
+
         public static Tween<float> TweenEmission(this Material material, Color endColor, float duration)
         {
             var startColor = material.HasProperty("_EmissionColor") ? material.GetColor("_EmissionColor") : Color.black;

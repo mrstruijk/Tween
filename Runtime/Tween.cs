@@ -131,7 +131,7 @@ namespace SOSXR.Tweening
                 _percentThreshold = -1f; // Making sure it doesn't get called every frame (combined with the above >=0 check)
             }
 
-            if (_elapsedTime < _duration)
+            if (_elapsedTime <= _duration)
             {
                 return;
             }
@@ -142,6 +142,7 @@ namespace SOSXR.Tweening
             if (_pingPong)
             {
                 _reverse = !_reverse;
+                Debug.Log("Reverse: " + _reverse);
             }
 
             if (_loopCount > 0 && _loopsCompleted >= _loopCount)
@@ -234,7 +235,7 @@ namespace SOSXR.Tweening
         public bool DoIgnoreTimeScale { get; private set; }
         public string Identifier { get; }
         public float DelayTime { get; private set; }
-        public Action OnComplete { get; private set; }
+        public Action OnComplete { get; set; }
 
 
         /// <summary>
